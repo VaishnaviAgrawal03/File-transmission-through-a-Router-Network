@@ -1,8 +1,8 @@
 
 # File Transmission Through a Router Network
 
-> Compute the **maximum transmissible packet size** between two routers in a network modeled as a **weighted multi‑edge graph**.  
-> Uses a **modified (widest-path) Dijkstra’s algorithm** running in **O(E log V)**.
+ Compute the **maximum transmissible packet size** between two routers in a network modeled as a **weighted multi‑edge graph**.  
+ Uses a **modified (widest-path) Dijkstra’s algorithm** running in **O(E log V)**.
 
 ---
 
