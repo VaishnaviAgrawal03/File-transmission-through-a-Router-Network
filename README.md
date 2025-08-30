@@ -1,48 +1,45 @@
+# 🚀 Maximum Path Sum in a Directed Graph using Modified Dijkstra’s Algorithm
 
-# File Transmission Through a Router Network
+## 📌 Overview
+This project implements a **maximum path sum algorithm** for a **directed weighted graph**.  
+Unlike the classical Dijkstra’s algorithm (which minimizes path length), this modified version finds the **maximum total weight path** between nodes.
 
- Compute the **maximum transmissible packet size** between two routers in a network modeled as a **weighted multi‑edge graph**.  
- Uses a **modified (widest-path) Dijkstra’s algorithm** running in **O(E log V)**.
-
----
-
-## 🚀 Problem Statement
-
-Given a network of routers where each link has a **maximum packet size (capacity)**, determine the largest packet that can be sent from a **source router** to a **destination router**.  
-This is the classic **widest path / max–min bottleneck path** problem.
-
-- **Vertices (V):** Routers  
-- **Edges (E):** Links between routers (multi-edges allowed)  
-- **Edge weight:** Maximum packet size that link can carry  
-- **Goal:** Maximize the minimum edge weight along the path
+The trick is simple:  
+- **Negate all edge weights**, then run standard Dijkstra’s algorithm.  
+- Since Dijkstra minimizes the total weight, minimizing the sum of negative weights is equivalent to **maximizing the sum of original weights**.  
+- Finally, the result is converted back to positive by taking its negative.
 
 ---
 
-## 🧠 Core Idea (Algorithm)
+## 🧠 Algorithm Idea
+- Standard Dijkstra → finds the **shortest path**.  
+- Modification:  
+  1. Convert all edge weights `w` → `-w`.  
+  2. Run Dijkstra’s algorithm to find the shortest path in the transformed graph.  
+  3. Resulting distance = most negative sum → corresponds to **maximum sum in the original graph**.  
 
-We adapt Dijkstra’s algorithm:
-
-- Replace “distance sum” with “path capacity” = `min(edge weights on the path)`.
-- Use a **max-heap** (priority queue) keyed by current best capacity to each node.
-- Relaxation step: `new_cap = min(best[u], w)`; if `new_cap > best[v]`, update.
-
-**Time Complexity:** `O(E log V)`
-
----
+### Complexity
+- **Time:** `O(E log V)` (using priority queue / min-heap)  
+- **Space:** `O(V + E)`  
 
 ## 📁 Project Structure 
 ├── src/
 
-│ └── router_net.cpp # main implementation
+│ └── max_path_sum.cpp # main implementation
 
 ├── data/
 
-│ └── sample_input.txt # example input
+│ └── sample_input.txt # example input graph
 
 ├── README.md
 
 └── LICENSE
 
+#Applications
+
+-Optimal route planning where total reward/weight is maximized
+-Graph-based optimization in logistics & supply chains
+-Game theory & AI pathfinding where score accumulation matters
 
 
 
