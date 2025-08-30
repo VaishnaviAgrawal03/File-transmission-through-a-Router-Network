@@ -1,83 +1,67 @@
 #include <bits/stdc++.h>
 using namespace std;
 
-/**
- * Graph with weighted edges representing max packet sizes.
- * We assume an undirected network; to support directed links,
- * simply remove the second push in addEdge().
- */
-class RouterNetwork {
+class Solution {
 public:
-    int V;                                         // number of routers
-    vector<vector<pair<int,int>>> adj;             // adj[u] = list of {neighbor, max_packet_size}
+    // Dijkstra's Algorithm on NEGATED weights
+    // Works for graphs where all edges have NEGATIVE weights,
+    // and we want the maximum (least negative) path sum.
+    unordered_map<int, int> longestPath(int n, vector<vector<int>>& edges, int src) {
+        //  Build adjacency list with NEGATED weights
+        unordered_map<int, vector<pair<int, int>>> adj;
+        for (int i = 0; i < n; i++) {
+            adj[i] = vector<pair<int, int>>();
+        }
 
-    RouterNetwork(int n) : V(n), adj(n) {}
+        for (vector<int>& edge : edges) {
+            int u = edge[0], v = edge[1], w = edge[2];
+            adj[u].push_back({v, -w});  // negate weight (since original w is negative)
+        }
 
-    // add an undirected link (u <-> v) with capacity w
-    void addEdge(int u, int v, int w) {
-        adj[u].emplace_back(v, w);
-        adj[v].emplace_back(u, w);
-    }
+        //  Standard Dijkstra (min-heap)
+        unordered_map<int, int> dist;
+        priority_queue<pair<int,int>, vector<pair<int,int>>, greater<pair<int,int>>> minHeap;
+        minHeap.push({0, src});
 
-    /**
-     * Compute the maximum transmissible packet size from src to dst.
-     * This is the “widest path” problem: maximize min-edge-weight on path.
-     * We use a max‑heap variant of Dijkstra in O(E log V).
-     */
-    int maxPacketSize(int src, int dst) {
-        vector<int> best(V, 0);                // best[u] = maximin capacity to u
-        best[src] = INT_MAX;                   // start with infinite capacity
-        priority_queue<pair<int,int>> pq;      // {capacity, node}, sorted by largest capacity
-        pq.push({best[src], src});
+        while (!minHeap.empty()) {
+            auto [currDist, node] = minHeap.top();
+            minHeap.pop();
 
-        while (!pq.empty()) {
-            auto [cap, u] = pq.top(); 
-            pq.pop();
-            if (cap < best[u]) continue;       // stale entry
-            if (u == dst) break;               // we’ve found the best for dst
+            if (dist.find(node) != dist.end()) continue; // already finalized
+            dist[node] = currDist;
 
-            // relax all edges out of u
-            for (auto [v, w] : adj[u]) {
-                int via = min(best[u], w);
-                if (via > best[v]) {
-                    best[v] = via;
-                    pq.push({best[v], v});
+            for (auto& [nbr, w] : adj[node]) {
+                if (dist.find(nbr) == dist.end()) {
+                    minHeap.push({currDist + w, nbr});
                 }
             }
         }
-        return best[dst];
+
+        //  Restore original signs of distances
+        unordered_map<int, int> result;
+        for (int i = 0; i < n; i++) {
+            if (dist.find(i) == dist.end()) {
+                result[i] = INT_MIN; // unreachable = no path
+            } else {
+                result[i] = -(dist[i]); // flip sign back to original max path sum
+            }
+        }
+
+        return result;
     }
 };
 
 int main() {
-    ios::sync_with_stdio(false);
-    cin.tie(nullptr);
+    Solution sol;
+    int n = 5;
+    vector<vector<int>> edges = {
+        {0,1,-5}, {0,2,-3}, {1,2,-2}, {1,3,-6}, {2,3,-7}, {3,4,-4}
+    };
+    int src = 0;
 
-    int N, M;
-    // N = number of routers; M = number of links
-    cin >> N >> M;
-
-    RouterNetwork net(N);
-    for (int i = 0; i < M; i++) {
-        int u, v, w;
-        cin >> u >> v >> w;
-        // if your input is 1‑indexed, uncomment:
-        // --u; --v;
-        net.addEdge(u, v, w);
-    }
-
-    int src, dst;
-    cin >> src >> dst;
-    // if 1‑indexed input, uncomment:
-    // --src; --dst;
-
-    int result = net.maxPacketSize(src, dst);
-    if (result > 0) {
-        cout << "Maximum transmissible packet size from "
-             << src << " to " << dst << " = " << result << "\n";
-    } else {
-        cout << "No path exists between routers "
-             << src << " and " << dst << "\n";
+    auto res = sol.longestPath(n, edges, src);
+    for (auto& [node, maxPath] : res) {
+        cout << "Max path sum to node " << node << " = " <<-(maxPath) << endl;
     }
     return 0;
 }
