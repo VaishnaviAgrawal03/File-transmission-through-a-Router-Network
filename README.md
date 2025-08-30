@@ -1,4 +1,4 @@
-# 🚀 Maximum Path Sum in a Directed Graph using Modified Dijkstra’s Algorithm
+# 🚀 File Transmission
 
 ## 📌 Overview
 This project implements a **maximum path sum algorithm** for a **directed weighted graph**.  
